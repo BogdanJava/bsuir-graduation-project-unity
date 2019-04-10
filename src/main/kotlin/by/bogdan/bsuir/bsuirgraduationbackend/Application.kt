@@ -4,8 +4,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class BsuirGraduationBackendApplication
+class Application
 
 fun main(args: Array<String>) {
-    runApplication<BsuirGraduationBackendApplication>(*args)
+    runApplication<Application>(*args)
 }
