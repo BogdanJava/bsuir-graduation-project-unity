@@ -1,5 +1,6 @@
 package by.bogdan.bsuir.bsuirgraduationbackend.controller
 
+import by.bogdan.bsuir.bsuirgraduationbackend.security.AuthToken
 import by.bogdan.bsuir.bsuirgraduationbackend.security.AuthenticationService
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -12,7 +13,7 @@ import reactor.core.publisher.Mono
 class AuthenticationController(val authService: AuthenticationService) {
 
     @PostMapping("/token")
-    fun generateToken(@RequestBody body: Map<String, String>): Mono<String> {
+    fun generateToken(@RequestBody body: Map<String, String>): Mono<AuthToken> {
         val username = body["username"]!!
         val password = body["password"]!!
         return authService.authenticate(username, password)

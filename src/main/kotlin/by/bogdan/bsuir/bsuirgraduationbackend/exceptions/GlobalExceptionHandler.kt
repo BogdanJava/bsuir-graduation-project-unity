@@ -33,4 +33,4 @@ data class AuthenticationException(val msg: String,
                                    val username: String,
                                    val password: String) : RuntimeException(msg)
 
-class ResourceNotFoundException(message: String) : RuntimeException(message)
+data class ResourceNotFoundException(val msg: String) : RuntimeException(msg)
