@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
+import java.util.regex.Pattern
 import kotlin.reflect.full.findAnnotation
 
 class SetProtectedRoutesApplicationInitializer : ApplicationContextInitializer<ConfigurableApplicationContext> {
@@ -42,10 +43,10 @@ class SetProtectedRoutesApplicationInitializer : ApplicationContextInitializer<C
             }
         }
         protectedResources = protectedResources.map { path ->
-            path.replace("\\^(\\{.+\\})", "*")
+            val pattern = Pattern.compile("\\{[a-z]+}")
+            val matcher = pattern.matcher(path)
+            matcher.replaceAll("*")
         }.toMutableSet()
-        println(protectedResources)
-        throw RuntimeException()
     }
 
     private fun getMappingsForMethod(method: Method, controllerPaths: Array<String>): List<String> {
@@ -71,8 +72,8 @@ class SetProtectedRoutesApplicationInitializer : ApplicationContextInitializer<C
                 annotation.annotationClass.findAnnotation<RequestMapping>() != null
             }.getOrNull(0)
 
-    @SuppressWarnings("unchecked")
-    private fun getMappingAnnotationPaths(annotation: Annotation): List<*> =
-            (annotation.javaClass.getDeclaredMethod("value").invoke(annotation) as Array<*>).asList()
+    private fun getMappingAnnotationPaths(annotation: Annotation) =
+            (annotation.javaClass.getDeclaredMethod("value")
+                    .invoke(annotation) as Array<*>).asList()
 
 }

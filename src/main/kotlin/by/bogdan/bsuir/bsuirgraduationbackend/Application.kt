@@ -16,18 +16,18 @@ fun main(args: Array<String>) {
     val context = runApplication<Application>(*args)
     val userRepository = context.getBean(UserRepository::class.java)
     val userService = context.getBean(UserService::class.java)
-    val superUser = userRepository.findByUsername("bogdanjava").switchIfEmpty(Mono.just(
+    userRepository.findByUsername("bogdanjava").switchIfEmpty(Mono.just(
             UserDocument(null, "bogdanjava", "12345", null, null)))
-    superUser.subscribe { user ->
-        if (user.role == null) {
-            // create a new superuser
-            user.role = Role.ADMIN
-            user.photoUrl = context.environment.getProperty("images.bogdanjava-url")
-            userService.create(user).subscribe { created ->
-                log.info("Superuser created: $created")
+            .subscribe { user ->
+                if (user.role == null) {
+                    // create a new superuser
+                    user.role = Role.ADMIN
+                    user.photoUrl = context.environment.getProperty("images.bogdanjava-url")
+                    userService.create(user).subscribe { created ->
+                        log.info("Superuser created: $created")
+                    }
+                }
             }
-        }
-    }
 }
 
 val log = LoggerFactory.getLogger(Application::class.java)!!

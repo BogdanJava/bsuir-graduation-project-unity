@@ -5,6 +5,7 @@ import by.bogdan.bsuir.bsuirgraduationbackend.exceptions.AuthenticationException
 import by.bogdan.bsuir.bsuirgraduationbackend.repository.UserRepository
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
@@ -31,7 +32,9 @@ class AuthenticationService(private val userRepository: UserRepository,
                 val expirationSeconds = LocalDateTime.now().plusHours(12).toEpochSecond(ZoneOffset.UTC)
                 val accessToken = Jwts.builder()
                         .setSubject(username)
-                        .setExpiration(Date(expirationSeconds))
+                        .setId(UUID.randomUUID().toString())
+                        .setExpiration(Date(expirationSeconds * 1000)) // milliseconds
+                        .claim("id", user.id)
                         .signWith(SignatureAlgorithm.HS256, secretEncoded)
                         .compact()
                 AuthToken(accessToken, expirationSeconds)
@@ -40,15 +43,20 @@ class AuthenticationService(private val userRepository: UserRepository,
     }
 
     fun isTokenValid(rawToken: String): Boolean {
-        try {
+        return try {
             val parser = Jwts.parser().setSigningKey(secretEncoded)
-            return if (parser.isSigned(rawToken)) {
+            if (parser.isSigned(rawToken)) {
                 val body = parser.parseClaimsJws(rawToken).body
-                body.expiration.before(Date(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)))
-            } else false;
+                body.expiration.after(Date(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000))
+            } else false
         } catch (ex: Throwable) {
-            return false;
+            log.error(ex.message, ex)
+            false
         }
+    }
+
+    companion object {
+        val log = LoggerFactory.getLogger(AuthenticationService::class.java)!!
     }
 }
 
