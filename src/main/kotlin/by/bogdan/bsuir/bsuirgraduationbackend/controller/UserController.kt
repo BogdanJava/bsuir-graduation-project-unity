@@ -46,7 +46,7 @@ class UserController(private val userService: UserService,
     fun getByFilter(@RequestParam("filter") raw: String): Flux<UserDocument> {
         val filter = objectMapper.readValue<Map<String, ValueContainer>>(raw,
                 object : TypeReference<Map<String, ValueContainer>>() {})
-        return userService.getByFilter(filter);
+        return userService.getByFilter(filter)
     }
 
     companion object {

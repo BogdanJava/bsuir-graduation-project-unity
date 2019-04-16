@@ -31,6 +31,8 @@ class GlobalExceptionHandler {
 
 data class AuthenticationException(val msg: String,
                                    val username: String,
-                                   val password: String) : RuntimeException(msg)
+                                   val password: String) : RuntimeException(msg) {
+    constructor(ex: Throwable) : this(ex.message!!, "", "")
+}
 
 data class ResourceNotFoundException(val msg: String) : RuntimeException(msg)

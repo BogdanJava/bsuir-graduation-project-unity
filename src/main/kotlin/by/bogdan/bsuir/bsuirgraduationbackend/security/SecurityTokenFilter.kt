@@ -37,5 +37,5 @@ class SecurityTokenFilter(val authenticationService: AuthenticationService) : We
 
     private fun isProtectedUrl(request: HttpRequest) =
             this.protectedResources.contains(request.uri.path)
-                    && request.method != HttpMethod.OPTIONS
+                    && request.method != HttpMethod.OPTIONS // cors handshake
 }
