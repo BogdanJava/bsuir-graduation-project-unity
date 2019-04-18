@@ -21,7 +21,7 @@ class SetProtectedRoutesApplicationInitializer : ApplicationContextInitializer<C
         val reflections = Reflections(rootPackage.name)
         reflections.getTypesAnnotatedWith(RestController::class.java).forEach { controllerType ->
             val mappingAnnotation = controllerType.getAnnotation(RequestMapping::class.java)
-            val paths = mappingAnnotation.value
+            val paths = if (mappingAnnotation != null) mappingAnnotation.value else arrayOf("")
             if (controllerType.isAnnotationPresent(ProtectedResource::class.java)) {
                 controllerType.declaredMethods
                         .filter { m -> Modifier.isPublic(m.modifiers) }

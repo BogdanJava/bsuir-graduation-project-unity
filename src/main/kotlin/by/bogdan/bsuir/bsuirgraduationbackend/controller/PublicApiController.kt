@@ -11,17 +11,13 @@ import reactor.core.publisher.Mono
 
 @RestController
 @RequestMapping("/api/public")
-class PublicApiController(val userRepository: UserRepository,
-                          @Value("\${images.no-photo-url}") val noPhotoUrl: String) {
+class PublicApiController(val userRepository: UserRepository) {
 
     @GetMapping("/users")
     fun getPublicUserInfo(@RequestParam username: String) =
             userRepository.findByUsername(username)
                     .map { user ->
-                        var photoUrl = user.photoUrl
-                        if (photoUrl == null) {
-                            photoUrl = noPhotoUrl
-                        }
+                        val photoUrl = user.photoUrl
                         hashMapOf(Pair("username", user.username), Pair("photoUrl", photoUrl))
                     }.switchIfEmpty(Mono.error(ResourceNotFoundException("No user found for username $username")))
 }

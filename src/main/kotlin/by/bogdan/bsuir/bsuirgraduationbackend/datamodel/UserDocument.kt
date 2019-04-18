@@ -18,14 +18,17 @@ data class UserDocument(
         var address: String? = null,
         var department: DepartmentDocument? = null) : BasicDocument()
 
-
-@Document(collection = "departments")
-data class DepartmentDocument(
-        @Id @Field("id") var id: UUID?,
-        var name: String?,
-        var manager: UserDocument?,
-        var description: String?) : BasicDocument()
-
 enum class Role {
     ADMIN, USER
+}
+
+data class CreateUserDTO(var username: String,
+                         var password: String)
+
+data class UpdateUserDTO(var realName: String?,
+                         var department: DepartmentDocument?,
+                         var address: String?,
+                         var birthday: Long?,
+                         var photoUrl: String?) {
+    constructor() : this(null, null, null, 0, null)
 }

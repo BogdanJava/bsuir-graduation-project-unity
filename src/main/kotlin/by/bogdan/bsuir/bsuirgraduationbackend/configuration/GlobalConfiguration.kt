@@ -1,6 +1,7 @@
 package by.bogdan.bsuir.bsuirgraduationbackend.configuration
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -18,5 +19,5 @@ class GlobalConfiguration(@Value("\${services.web.url}") val webUrl: String) :
     }
 
     @Bean
-    fun objectMapper() = ObjectMapper()
+    fun objectMapper() = ObjectMapper().apply { registerModule(KotlinModule()) }
 }

@@ -9,13 +9,15 @@ import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.inValues
 import org.springframework.data.mongodb.core.query.isEqualTo
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 abstract class CrudService<T : BasicDocument, ID, UpdateDTO>(
+        private val mongoRepository: ReactiveMongoRepository<T, ID>,
         private val mongoTemplate: ReactiveMongoTemplate,
         private val clazz: Class<T>) {
-    abstract fun create(document: T): Mono<UserDocument>
+    abstract fun create(document: T): Mono<T>
     abstract fun findById(id: ID): Mono<T>
     abstract fun update(id: ID, updates: UpdateDTO): Mono<T>
 

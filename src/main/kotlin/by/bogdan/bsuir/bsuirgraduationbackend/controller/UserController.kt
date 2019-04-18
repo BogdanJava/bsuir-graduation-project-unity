@@ -1,6 +1,7 @@
 package by.bogdan.bsuir.bsuirgraduationbackend.controller
 
-import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.DepartmentDocument
+import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.CreateUserDTO
+import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.UpdateUserDTO
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.UserDocument
 import by.bogdan.bsuir.bsuirgraduationbackend.repository.UserRepository
 import by.bogdan.bsuir.bsuirgraduationbackend.security.ProtectedResource
@@ -52,15 +53,4 @@ class UserController(private val userService: UserService,
     companion object {
         val log = LoggerFactory.getLogger(UserController::class.java)!!
     }
-}
-
-data class CreateUserDTO(var username: String,
-                         var password: String)
-
-data class UpdateUserDTO(var realName: String?,
-                         var department: DepartmentDocument?,
-                         var address: String?,
-                         var birthday: Long?,
-                         var photoUrl: String?) {
-    constructor() : this(null, null, null, 0, null)
 }

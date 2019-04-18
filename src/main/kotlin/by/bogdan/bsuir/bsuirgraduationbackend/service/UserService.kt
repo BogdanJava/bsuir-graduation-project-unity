@@ -1,6 +1,6 @@
 package by.bogdan.bsuir.bsuirgraduationbackend.service
 
-import by.bogdan.bsuir.bsuirgraduationbackend.controller.UpdateUserDTO
+import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.UpdateUserDTO
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.UserDocument
 import by.bogdan.bsuir.bsuirgraduationbackend.exceptions.ResourceNotFoundException
 import by.bogdan.bsuir.bsuirgraduationbackend.repository.UserRepository
@@ -15,7 +15,7 @@ class UserService(val userRepository: UserRepository,
                   val authService: AuthenticationService,
                   val objectCopyService: ObjectCopyService,
                   mongoTemplate: ReactiveMongoTemplate) :
-        CrudService<UserDocument, UUID, UpdateUserDTO>(mongoTemplate, UserDocument::class.java) {
+        CrudService<UserDocument, UUID, UpdateUserDTO>(userRepository, mongoTemplate, UserDocument::class.java) {
     override fun create(document: UserDocument): Mono<UserDocument> {
         val password = document.password
         document.password = authService.encode(password)
