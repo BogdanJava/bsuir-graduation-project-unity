@@ -12,14 +12,15 @@ data class UserDocument(
         var username: String = "",
         @JsonIgnore var password: String = "",
         var photoUrl: String? = null,
-        var role: Role? = Role.USER,
+        var roles: Array<Role> = arrayOf(Role.USER),
         var realName: String? = null,
         var birthday: Long? = null,
         var address: String? = null,
-        var department: DepartmentDocument? = null) : BasicDocument()
+        var department: DepartmentDocument? = null,
+        var projectIds: Array<UUID> = emptyArray()) : BasicDocument()
 
 enum class Role {
-    ADMIN, USER
+    ADMIN, USER, MODERATOR
 }
 
 data class CreateUserDTO(var username: String,

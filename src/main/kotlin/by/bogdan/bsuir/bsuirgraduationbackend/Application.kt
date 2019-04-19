@@ -17,11 +17,11 @@ fun main(args: Array<String>) {
     val userRepository = context.getBean(UserRepository::class.java)
     val userService = context.getBean(UserService::class.java)
     userRepository.findByUsername("bogdanjava").switchIfEmpty(Mono.just(
-            UserDocument(null, "bogdanjava", "12345", null, null)))
+            UserDocument(null, "bogdanjava", "12345", null, emptyArray())))
             .subscribe { user ->
-                if (user.role == null) {
+                if (user.roles.isEmpty()) {
                     // create a new superuser
-                    user.role = Role.ADMIN
+                    user.roles = arrayOf(Role.ADMIN, Role.USER, Role.MODERATOR)
                     user.photoUrl = context.environment.getProperty("images.bogdanjava-url")
                     userService.create(user).subscribe { created ->
                         log.info("Superuser created: $created")

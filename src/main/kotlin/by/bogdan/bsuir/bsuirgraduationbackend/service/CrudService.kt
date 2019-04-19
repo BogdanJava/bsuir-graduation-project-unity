@@ -3,7 +3,6 @@ package by.bogdan.bsuir.bsuirgraduationbackend.service
 import by.bogdan.bsuir.bsuirgraduationbackend.controller.Operator
 import by.bogdan.bsuir.bsuirgraduationbackend.controller.ValueContainer
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.BasicDocument
-import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.UserDocument
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
@@ -21,14 +20,14 @@ abstract class CrudService<T : BasicDocument, ID, UpdateDTO>(
     abstract fun findById(id: ID): Mono<T>
     abstract fun update(id: ID, updates: UpdateDTO): Mono<T>
 
-    fun getByFilter(dataFilter: Map<String, ValueContainer>): Flux<T> {
+    fun getByFilter(dataFilter: Map<String, ValueContainer>, projectionFields: List<String>): Flux<T> {
         val query = Query()
         dataFilter.forEach { path, operatorValuePair ->
             val value = operatorValuePair.value
             val criteria = Criteria(path)
             when (operatorValuePair.operator) {
                 Operator.EQ -> criteria.isEqualTo(value)
-                Operator.IN -> criteria.inValues(value)
+                Operator.IN -> criteria.inValues(*((value as List<*>).toTypedArray()))
                 Operator.LT -> criteria.lt(value)
                 Operator.GT -> criteria.gt(value)
                 Operator.GTE -> criteria.gte(value)
@@ -36,6 +35,8 @@ abstract class CrudService<T : BasicDocument, ID, UpdateDTO>(
             }
             query.addCriteria(criteria)
         }
+        val fields = query.fields()
+        projectionFields.forEach { f -> fields.include(f) }
         return mongoTemplate.query(clazz).matching(query).all()
     }
 }

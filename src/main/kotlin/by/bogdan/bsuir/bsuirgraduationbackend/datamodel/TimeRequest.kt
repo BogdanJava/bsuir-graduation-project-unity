@@ -7,6 +7,9 @@ import java.util.*
 data class TimeRequest(var id: UUID?,
                        var userId: UUID?,
                        var type: TimeRequestType,
+                       var startDate: Date?,
+                       var endDate: Date?,
+                       var projectId: UUID?,
                        var description: String?,
                        var approverId: UUID?,
                        var approved: Boolean = false) : BasicDocument()

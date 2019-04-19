@@ -1,10 +1,9 @@
 package by.bogdan.bsuir.bsuirgraduationbackend.controller
 
-import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.CreateUserDTO
-import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.UpdateUserDTO
-import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.UserDocument
+import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.*
 import by.bogdan.bsuir.bsuirgraduationbackend.repository.UserRepository
 import by.bogdan.bsuir.bsuirgraduationbackend.security.ProtectedResource
+import by.bogdan.bsuir.bsuirgraduationbackend.security.RoleSensitive
 import by.bogdan.bsuir.bsuirgraduationbackend.service.ObjectCopyService
 import by.bogdan.bsuir.bsuirgraduationbackend.service.UserService
 import com.fasterxml.jackson.core.type.TypeReference
@@ -23,8 +22,10 @@ class UserController(private val userService: UserService,
                      private val objectMapper: ObjectMapper,
                      private val objectCopyService: ObjectCopyService) {
 
+    @RoleSensitive(Role.ADMIN)
     @PostMapping
-    fun create(@RequestBody user: CreateUserDTO): Mono<UserDocument> {
+    fun create(@RequestBody user: CreateUserDTO,
+               @RequestHeader("Authorization") authHeader: String): Mono<UserDocument> {
         log.info("Creating user: $user")
         val userDocument = UserDocument()
         objectCopyService.noOverwriteTargetCopy(user, userDocument)
@@ -44,10 +45,11 @@ class UserController(private val userService: UserService,
     fun getByUsername(@RequestParam username: String) = userRepository.findByUsername(username)
 
     @GetMapping("/filter")
-    fun getByFilter(@RequestParam("filter") raw: String): Flux<UserDocument> {
-        val filter = objectMapper.readValue<Map<String, ValueContainer>>(raw,
-                object : TypeReference<Map<String, ValueContainer>>() {})
-        return userService.getByFilter(filter)
+    fun getByFilter(@RequestParam("filter") raw: String,
+                    @RequestParam("projection") projectionRaw: String): Flux<UserDocument> {
+        val filter = objectMapper.readValue(raw, DataFilter::class.java)
+        val projection = objectMapper.readValue<List<String>>(projectionRaw, object : TypeReference<List<String>>() {})
+        return userService.getByFilter(filter.filter, projection)
     }
 
     companion object {
