@@ -2,7 +2,6 @@ package by.bogdan.bsuir.bsuirgraduationbackend.controller
 
 import by.bogdan.bsuir.bsuirgraduationbackend.exceptions.ResourceNotFoundException
 import by.bogdan.bsuir.bsuirgraduationbackend.repository.UserRepository
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam

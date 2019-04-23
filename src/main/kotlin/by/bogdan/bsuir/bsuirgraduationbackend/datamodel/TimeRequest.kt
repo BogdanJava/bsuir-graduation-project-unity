@@ -1,10 +1,12 @@
 package by.bogdan.bsuir.bsuirgraduationbackend.datamodel
 
+import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
+import org.springframework.data.mongodb.core.mapping.Field
 import java.util.*
 
 @Document(collection = "time_requests")
-data class TimeRequest(var id: UUID?,
+data class TimeRequest(@Id @Field("id") var id: UUID? = null,
                        var userId: UUID?,
                        var type: TimeRequestType,
                        var startDate: Date?,

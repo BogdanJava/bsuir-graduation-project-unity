@@ -2,7 +2,9 @@ package by.bogdan.bsuir.bsuirgraduationbackend.service
 
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.TimeRequest
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.TimeRequestUpdateDTO
+import by.bogdan.bsuir.bsuirgraduationbackend.exceptions.ResourceNotFoundException
 import by.bogdan.bsuir.bsuirgraduationbackend.repository.TimeRequestRepository
+import by.bogdan.bsuir.bsuirgraduationbackend.repository.UserRepository
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
@@ -10,15 +12,19 @@ import java.util.*
 
 @Service
 class TimeRequestService(private val timeRequestRepository: TimeRequestRepository,
-                         mongoTemplate: ReactiveMongoTemplate) :
-        CrudService<TimeRequest, UUID, TimeRequestUpdateDTO>(timeRequestRepository, mongoTemplate, TimeRequest::class.java) {
-    override fun create(document: TimeRequest) = timeRequestRepository.save(document)
-
-    override fun findById(id: UUID): Mono<TimeRequest> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun update(id: UUID, updates: TimeRequestUpdateDTO): Mono<TimeRequest> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                         private val userRepository: UserRepository,
+                         mongoTemplate: ReactiveMongoTemplate,
+                         objectCopyService: ObjectCopyService) :
+        CrudService<TimeRequest, UUID, TimeRequestUpdateDTO>(timeRequestRepository, mongoTemplate, objectCopyService, TimeRequest::class.java) {
+    override fun create(document: TimeRequest): Mono<TimeRequest> {
+        return userRepository.existsById(document.approverId!!).flatMap { exists ->
+            if (exists) {
+                document.approved = false
+                document.id = UUID.randomUUID()
+                timeRequestRepository.save(document)
+            } else {
+                throw ResourceNotFoundException("No user found for id ${document.approverId}")
+            }
+        }
     }
 }

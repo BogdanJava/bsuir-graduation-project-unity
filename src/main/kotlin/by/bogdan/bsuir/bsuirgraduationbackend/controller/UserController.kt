@@ -20,7 +20,7 @@ import java.util.*
 class UserController(private val userService: UserService,
                      private val userRepository: UserRepository,
                      private val objectMapper: ObjectMapper,
-                     private val objectCopyService: ObjectCopyService) {
+                     private val objectCopyService: ObjectCopyService) : FilterRequest<UserDocument> {
 
     @RoleSensitive(Role.ADMIN)
     @PostMapping
@@ -45,9 +45,9 @@ class UserController(private val userService: UserService,
     fun getByUsername(@RequestParam username: String) = userRepository.findByUsername(username)
 
     @GetMapping("/filter")
-    fun getByFilter(@RequestParam("filter") raw: String,
+    override fun getByFilter(@RequestParam("filter") filterRaw: String,
                     @RequestParam("projection") projectionRaw: String): Flux<UserDocument> {
-        val filter = objectMapper.readValue(raw, DataFilter::class.java)
+        val filter = objectMapper.readValue(filterRaw, DataFilter::class.java)
         val projection = objectMapper.readValue<List<String>>(projectionRaw, object : TypeReference<List<String>>() {})
         return userService.getByFilter(filter.filter, projection)
     }
