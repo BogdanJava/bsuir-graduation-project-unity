@@ -45,7 +45,7 @@ class SetProtectedRoutesApplicationInitializer : ApplicationContextInitializer<C
         protectedResources = protectedResources.map { path ->
             val pattern = Pattern.compile("\\{[a-z]+}")
             val matcher = pattern.matcher(path)
-            matcher.replaceAll("*")
+            matcher.replaceAll("[a-zA-Z0-9-_]+")
         }.toMutableSet()
     }
 

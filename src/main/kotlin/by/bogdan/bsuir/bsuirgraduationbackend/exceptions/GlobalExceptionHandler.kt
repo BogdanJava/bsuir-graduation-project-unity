@@ -1,13 +1,12 @@
 package by.bogdan.bsuir.bsuirgraduationbackend.exceptions
 
-import by.bogdan.bsuir.bsuirgraduationbackend.Application
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
-@RestControllerAdvice(basePackageClasses = [(Application::class)])
+@RestControllerAdvice(basePackages = ["by.bogdan"])
 class GlobalExceptionHandler {
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -32,9 +31,18 @@ class GlobalExceptionHandler {
 
 data class AuthenticationException(val msg: String,
                                    val username: String,
-                                   val password: String) : RuntimeException(msg) {
+                                   val password: String) : CustomException(msg) {
+    override fun getResponseStatus() = HttpStatus.UNAUTHORIZED;
+
     constructor(ex: Throwable) : this(ex.message!!, "", "")
     constructor(message: String) : this(message, "", "")
 }
 
-data class ResourceNotFoundException(val msg: String) : RuntimeException(msg)
+data class ResourceNotFoundException(val msg: String) : CustomException(msg) {
+    override fun getResponseStatus() = HttpStatus.NOT_FOUND;
+}
+
+abstract class CustomException(message: String) : RuntimeException(message) {
+    abstract fun getResponseStatus(): HttpStatus
+    fun getErrorMessage() = message
+}
