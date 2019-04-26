@@ -1,15 +1,14 @@
 package by.bogdan.bsuir.bsuirgraduationbackend.controller
 
-import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.DataFilter
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.Role
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.TimeRequest
+import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.TimeRequestUpdateDTO
 import by.bogdan.bsuir.bsuirgraduationbackend.exceptions.AuthenticationException
 import by.bogdan.bsuir.bsuirgraduationbackend.repository.TimeRequestRepository
 import by.bogdan.bsuir.bsuirgraduationbackend.security.AuthenticationService
 import by.bogdan.bsuir.bsuirgraduationbackend.security.ProtectedResource
 import by.bogdan.bsuir.bsuirgraduationbackend.security.RoleSensitive
 import by.bogdan.bsuir.bsuirgraduationbackend.service.TimeRequestService
-import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
@@ -22,14 +21,13 @@ import java.util.*
 class TimeRequestController(val timeRequestService: TimeRequestService,
                             val authenticationService: AuthenticationService,
                             val timeRequestRepository: TimeRequestRepository,
-                            val objectMapper: ObjectMapper) : FilterRequest<TimeRequest> {
+                            val objectMapper: ObjectMapper) :
+        AbstractController<TimeRequest, UUID, TimeRequestUpdateDTO>(timeRequestService, objectMapper) {
 
     @GetMapping("/filter")
     override fun getByFilter(@RequestParam("filter") filterRaw: String,
                              @RequestParam("projection") projectionRaw: String): Flux<TimeRequest> {
-        val filter = objectMapper.readValue(filterRaw, DataFilter::class.java)
-        val projection = objectMapper.readValue<List<String>>(projectionRaw, object : TypeReference<List<String>>() {})
-        return timeRequestService.getByFilter(filter.filter, projection)
+        return this._getByFilter(filterRaw, projectionRaw);
     }
 
     @PostMapping

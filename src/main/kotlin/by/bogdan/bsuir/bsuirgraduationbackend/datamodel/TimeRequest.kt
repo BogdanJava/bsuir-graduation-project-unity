@@ -11,7 +11,6 @@ data class TimeRequest(@Id @Field("id") var id: UUID? = null,
                        var type: TimeRequestType,
                        var startDate: Date?,
                        var endDate: Date?,
-                       var projectId: UUID?,
                        var description: String?,
                        var approverId: UUID?,
                        var approved: Boolean = false) : BasicDocument()

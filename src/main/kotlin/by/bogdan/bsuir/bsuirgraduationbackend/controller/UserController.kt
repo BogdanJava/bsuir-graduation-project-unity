@@ -1,12 +1,14 @@
 package by.bogdan.bsuir.bsuirgraduationbackend.controller
 
-import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.*
+import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.CreateUserDTO
+import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.Role
+import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.UpdateUserDTO
+import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.UserDocument
 import by.bogdan.bsuir.bsuirgraduationbackend.repository.UserRepository
 import by.bogdan.bsuir.bsuirgraduationbackend.security.ProtectedResource
 import by.bogdan.bsuir.bsuirgraduationbackend.security.RoleSensitive
 import by.bogdan.bsuir.bsuirgraduationbackend.service.ObjectCopyService
 import by.bogdan.bsuir.bsuirgraduationbackend.service.UserService
-import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.*
@@ -20,7 +22,14 @@ import java.util.*
 class UserController(private val userService: UserService,
                      private val userRepository: UserRepository,
                      private val objectMapper: ObjectMapper,
-                     private val objectCopyService: ObjectCopyService) : FilterRequest<UserDocument> {
+                     private val objectCopyService: ObjectCopyService) :
+        AbstractController<UserDocument, UUID, UpdateUserDTO>(userService, objectMapper) {
+
+    @GetMapping("/filter")
+    override fun getByFilter(@RequestParam("filter") filterRaw: String,
+                             @RequestParam("projection") projectionRaw: String): Flux<UserDocument> {
+        return this._getByFilter(filterRaw, projectionRaw);
+    }
 
     @RoleSensitive(Role.ADMIN)
     @PostMapping
@@ -43,14 +52,6 @@ class UserController(private val userService: UserService,
 
     @GetMapping
     fun getByUsername(@RequestParam username: String) = userRepository.findByUsername(username)
-
-    @GetMapping("/filter")
-    override fun getByFilter(@RequestParam("filter") filterRaw: String,
-                    @RequestParam("projection") projectionRaw: String): Flux<UserDocument> {
-        val filter = objectMapper.readValue(filterRaw, DataFilter::class.java)
-        val projection = objectMapper.readValue<List<String>>(projectionRaw, object : TypeReference<List<String>>() {})
-        return userService.getByFilter(filter.filter, projection)
-    }
 
     companion object {
         val log = LoggerFactory.getLogger(UserController::class.java)!!
