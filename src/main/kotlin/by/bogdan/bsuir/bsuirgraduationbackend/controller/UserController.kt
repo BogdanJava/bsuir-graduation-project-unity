@@ -5,8 +5,8 @@ import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.Role
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.UpdateUserDTO
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.UserDocument
 import by.bogdan.bsuir.bsuirgraduationbackend.repository.UserRepository
-import by.bogdan.bsuir.bsuirgraduationbackend.security.ProtectedResource
-import by.bogdan.bsuir.bsuirgraduationbackend.security.RoleSensitive
+import by.bogdan.bsuir.bsuirgraduationbackend.security.annotations.ProtectedResource
+import by.bogdan.bsuir.bsuirgraduationbackend.security.annotations.RestrictedAccess
 import by.bogdan.bsuir.bsuirgraduationbackend.service.ObjectCopyService
 import by.bogdan.bsuir.bsuirgraduationbackend.service.UserService
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -21,7 +21,7 @@ import java.util.*
 @RequestMapping("/api/users")
 class UserController(private val userService: UserService,
                      private val userRepository: UserRepository,
-                     private val objectMapper: ObjectMapper,
+                     objectMapper: ObjectMapper,
                      private val objectCopyService: ObjectCopyService) :
         AbstractController<UserDocument, UUID, UpdateUserDTO>(userService, objectMapper) {
 
@@ -31,7 +31,7 @@ class UserController(private val userService: UserService,
         return this._getByFilter(filterRaw, projectionRaw);
     }
 
-    @RoleSensitive(Role.ADMIN)
+    @RestrictedAccess(Role.ADMIN)
     @PostMapping
     fun create(@RequestBody user: CreateUserDTO,
                @RequestHeader("Authorization") authHeader: String): Mono<UserDocument> {
@@ -51,7 +51,9 @@ class UserController(private val userService: UserService,
     fun getById(@PathVariable id: UUID) = userService.findById(id)
 
     @GetMapping
-    fun getByUsername(@RequestParam username: String) = userRepository.findByUsername(username)
+    fun getByUsername(@RequestParam username: String): Mono<UserDocument> {
+        return userRepository.findByUsername(username)
+    }
 
     companion object {
         val log = LoggerFactory.getLogger(UserController::class.java)!!

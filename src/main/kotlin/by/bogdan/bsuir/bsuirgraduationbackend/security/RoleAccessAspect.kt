@@ -1,6 +1,7 @@
 package by.bogdan.bsuir.bsuirgraduationbackend.security
 
 import by.bogdan.bsuir.bsuirgraduationbackend.exceptions.AuthenticationException
+import by.bogdan.bsuir.bsuirgraduationbackend.security.annotations.RestrictedAccess
 import by.bogdan.bsuir.bsuirgraduationbackend.service.UserService
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
@@ -16,10 +17,10 @@ import java.util.*
 class RoleAccessAspect(private val authenticationService: AuthenticationService,
                        private val userService: UserService) {
 
-    @Around("@annotation(by.bogdan.bsuir.bsuirgraduationbackend.security.RoleSensitive)")
+    @Around("@annotation(by.bogdan.bsuir.bsuirgraduationbackend.security.annotations.RestrictedAccess)")
     fun checkUserPrivileges(joinPoint: ProceedingJoinPoint): Mono<Any> {
         val method = (joinPoint.signature as MethodSignature).method
-        val roleSensitive = method.getDeclaredAnnotation(RoleSensitive::class.java)
+        val roleSensitive = method.getDeclaredAnnotation(RestrictedAccess::class.java)
         val bearer = joinPoint.args[1] as String
         val claims = authenticationService.getClaimsFromAuthorizationHeader(bearer)
         return userService.findById(UUID.fromString(claims["id"] as String)).flatMap { currentUser ->

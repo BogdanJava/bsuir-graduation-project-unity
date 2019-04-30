@@ -1,6 +1,6 @@
 package by.bogdan.bsuir.bsuirgraduationbackend.controller
 
-import by.bogdan.bsuir.bsuirgraduationbackend.security.ProtectedResource
+import by.bogdan.bsuir.bsuirgraduationbackend.security.annotations.ProtectedResource
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam

@@ -1,6 +1,8 @@
 package by.bogdan.bsuir.bsuirgraduationbackend.security
 
 import by.bogdan.bsuir.bsuirgraduationbackend.Application
+import by.bogdan.bsuir.bsuirgraduationbackend.security.annotations.ProtectedResource
+import by.bogdan.bsuir.bsuirgraduationbackend.security.annotations.PublicResource
 import org.reflections.Reflections
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
@@ -21,7 +23,13 @@ class SetProtectedRoutesApplicationInitializer : ApplicationContextInitializer<C
         val reflections = Reflections(rootPackage.name)
         reflections.getTypesAnnotatedWith(RestController::class.java).forEach { controllerType ->
             val mappingAnnotation = controllerType.getAnnotation(RequestMapping::class.java)
-            val paths = if (mappingAnnotation != null) mappingAnnotation.value else arrayOf("")
+            val paths = if (mappingAnnotation != null) {
+                when {
+                    mappingAnnotation.value.isNotEmpty() -> mappingAnnotation.value
+                    mappingAnnotation.path.isNotEmpty() -> mappingAnnotation.path
+                    else -> arrayOf("")
+                }
+            } else arrayOf("")
             if (controllerType.isAnnotationPresent(ProtectedResource::class.java)) {
                 controllerType.declaredMethods
                         .filter { m -> Modifier.isPublic(m.modifiers) }
@@ -43,7 +51,7 @@ class SetProtectedRoutesApplicationInitializer : ApplicationContextInitializer<C
             }
         }
         protectedResources = protectedResources.map { path ->
-            val pattern = Pattern.compile("\\{[a-z]+}")
+            val pattern = Pattern.compile("\\{[a-zA-Z]+}")
             val matcher = pattern.matcher(path)
             matcher.replaceAll("[a-zA-Z0-9-_]+")
         }.toMutableSet()

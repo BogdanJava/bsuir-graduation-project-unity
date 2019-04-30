@@ -1,4 +1,4 @@
-package by.bogdan.bsuir.bsuirgraduationbackend.security
+package by.bogdan.bsuir.bsuirgraduationbackend.security.annotations
 
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION)

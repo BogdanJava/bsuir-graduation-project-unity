@@ -2,7 +2,7 @@ package by.bogdan.bsuir.bsuirgraduationbackend.controller
 
 import by.bogdan.bsuir.bsuirgraduationbackend.security.AuthToken
 import by.bogdan.bsuir.bsuirgraduationbackend.security.AuthenticationService
-import by.bogdan.bsuir.bsuirgraduationbackend.security.ProtectedResource
+import by.bogdan.bsuir.bsuirgraduationbackend.security.annotations.ProtectedResource
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
 import java.util.*

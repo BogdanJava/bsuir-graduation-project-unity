@@ -22,11 +22,12 @@ class MongoPrePersistEventListener :
             document["created"] = date
         }
         document["updated"] = date
+        document["deleted"] = false
     }
 
 
     companion object {
-        val log = LoggerFactory.getLogger(MongoPrePersistEventListener::class.java)
+        val log = LoggerFactory.getLogger(MongoPrePersistEventListener::class.java)!!
     }
 
 }

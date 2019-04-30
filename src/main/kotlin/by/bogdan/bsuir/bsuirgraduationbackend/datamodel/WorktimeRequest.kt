@@ -9,7 +9,6 @@ import java.util.*
  * @author bogdanshishkin1998@gmail.com
  * @since 4/26/2019
  */
-
 @Document(collection = "worktime_requests")
 data class WorktimeRequest(@Id @Field("id") var id: UUID? = null,
                            var userId: UUID?,
@@ -19,3 +18,6 @@ data class WorktimeRequest(@Id @Field("id") var id: UUID? = null,
                            var projectId: UUID?,
                            var approverId: UUID?,
                            var approved: Boolean = false) : BasicDocument()
+
+data class WorktimeRequestUpdateDTO(var approved: Boolean,
+                                var description: String?)

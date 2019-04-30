@@ -44,5 +44,4 @@ data class ResourceNotFoundException(val msg: String) : CustomException(msg) {
 
 abstract class CustomException(message: String) : RuntimeException(message) {
     abstract fun getResponseStatus(): HttpStatus
-    fun getErrorMessage() = message
 }

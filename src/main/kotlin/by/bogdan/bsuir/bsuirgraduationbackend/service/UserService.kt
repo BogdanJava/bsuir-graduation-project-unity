@@ -1,7 +1,9 @@
 package by.bogdan.bsuir.bsuirgraduationbackend.service
 
+import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.Role
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.UpdateUserDTO
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.UserDocument
+import by.bogdan.bsuir.bsuirgraduationbackend.repository.ProjectRepository
 import by.bogdan.bsuir.bsuirgraduationbackend.repository.UserRepository
 import by.bogdan.bsuir.bsuirgraduationbackend.security.AuthenticationService
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
@@ -12,6 +14,7 @@ import java.util.*
 @Service
 class UserService(val userRepository: UserRepository,
                   val authService: AuthenticationService,
+                  val projectRepository: ProjectRepository,
                   objectCopyService: ObjectCopyService,
                   mongoTemplate: ReactiveMongoTemplate) :
         CrudService<UserDocument, UUID, UpdateUserDTO>(userRepository, mongoTemplate, objectCopyService, UserDocument::class.java) {
@@ -19,6 +22,17 @@ class UserService(val userRepository: UserRepository,
         val password = document.password
         document.password = authService.encode(password)
         document.id = UUID.randomUUID()
-        return userRepository.save(document)
+        if (document.roles.isNullOrEmpty()) {
+            document.roles = mutableListOf(Role.USER)
+        }
+        var projectIds = document.projectIds
+        return projectRepository.findByName("Idle").flatMap { idleProject ->
+            if (projectIds == null) {
+                projectIds = mutableListOf(idleProject.id!!)
+            } else {
+                projectIds!!.add(idleProject.id!!)
+            }
+            userRepository.save(document)
+        }
     }
 }
