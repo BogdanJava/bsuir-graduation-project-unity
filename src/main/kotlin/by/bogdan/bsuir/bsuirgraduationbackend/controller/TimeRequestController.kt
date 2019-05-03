@@ -26,7 +26,7 @@ class TimeRequestController(val timeRequestService: TimeRequestService,
 
     @GetMapping("/filter")
     override fun getByFilter(@RequestParam("filter") filterRaw: String,
-                             @RequestParam("projection") projectionRaw: String): Flux<TimeRequest> {
+                             @RequestParam(value = "projection", required = false) projectionRaw: String?): Flux<TimeRequest> {
         return this._getByFilter(filterRaw, projectionRaw)
     }
 

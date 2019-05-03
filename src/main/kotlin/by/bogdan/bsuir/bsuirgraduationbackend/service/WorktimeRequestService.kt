@@ -3,10 +3,13 @@ package by.bogdan.bsuir.bsuirgraduationbackend.service
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.WorktimeRequest
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.WorktimeRequestUpdateDTO
 import by.bogdan.bsuir.bsuirgraduationbackend.exceptions.ResourceNotFoundException
+import by.bogdan.bsuir.bsuirgraduationbackend.repository.ProjectRepository
 import by.bogdan.bsuir.bsuirgraduationbackend.repository.UserRepository
 import by.bogdan.bsuir.bsuirgraduationbackend.repository.WorktimeRequestRepository
+import by.bogdan.bsuir.bsuirgraduationbackend.utils.CustomReflectionUtils
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.*
 
@@ -14,19 +17,23 @@ import java.util.*
 class WorktimeRequestService(val worktimeRequestRepository: WorktimeRequestRepository,
                              mongoTemplate: ReactiveMongoTemplate,
                              objectCopyService: ObjectCopyService,
-                             val userRepository: UserRepository) :
-        CrudService<WorktimeRequest, UUID, WorktimeRequestUpdateDTO>(worktimeRequestRepository, mongoTemplate, objectCopyService, WorktimeRequest::class.java) {
+                             val userRepository: UserRepository,
+                             val projectRepository: ProjectRepository,
+                             reflectionUtils: CustomReflectionUtils) :
+        CrudService<WorktimeRequest, UUID, WorktimeRequestUpdateDTO>(worktimeRequestRepository, mongoTemplate,
+                objectCopyService, WorktimeRequest::class.java, reflectionUtils) {
     override fun create(document: WorktimeRequest): Mono<WorktimeRequest> {
-//        return userRepository.existsById(document.approverId!!).flatMap { exists ->
-//            if (exists) {
-//                document.approved = false
-//                document.id = UUID.randomUUID()
-//                worktimeRequestRepository.save(document)
-//            } else {
-//                throw ResourceNotFoundException("No user found for id ${document.approverId}")
-//            }
-//        }
         val userExistsMono = userRepository.existsById(document.approverId!!)
-        return Mono.empty()
+        val projectExistsMono = projectRepository.existsById(document.projectId!!)
+        val results = Flux.merge(userExistsMono, projectExistsMono)
+        return results.all { result -> result == true }
+                .flatMap { checkResult ->
+                    if (checkResult) {
+                        worktimeRequestRepository.save(document)
+                    } else {
+                        throw ResourceNotFoundException("No user found for id ${document.approverId} or " +
+                                "no project exists for id ${document.projectId}")
+                    }
+                }
     }
 }

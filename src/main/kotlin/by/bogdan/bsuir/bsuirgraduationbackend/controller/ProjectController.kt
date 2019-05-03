@@ -24,7 +24,7 @@ class ProjectController(objectMapper: ObjectMapper, val service: ProjectService,
 
     @GetMapping("/filter")
     override fun getByFilter(@RequestParam("filter") filterRaw: String,
-                             @RequestParam("projection") projectionRaw: String): Flux<ProjectDocument> {
+                             @RequestParam("projection") projectionRaw: String?): Flux<ProjectDocument> {
         return this._getByFilter(filterRaw, projectionRaw)
     }
 

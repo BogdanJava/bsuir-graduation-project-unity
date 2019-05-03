@@ -27,7 +27,7 @@ class UserController(private val userService: UserService,
 
     @GetMapping("/filter")
     override fun getByFilter(@RequestParam("filter") filterRaw: String,
-                             @RequestParam("projection") projectionRaw: String): Flux<UserDocument> {
+                             @RequestParam("projection") projectionRaw: String?): Flux<UserDocument> {
         return this._getByFilter(filterRaw, projectionRaw);
     }
 

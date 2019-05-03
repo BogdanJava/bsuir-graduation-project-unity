@@ -22,11 +22,12 @@ class WorktimeRequestController(val worktimeRequestService: WorktimeRequestServi
                                 objectMapper: ObjectMapper,
                                 val worktimeRequestRepository: WorktimeRequestRepository,
                                 val authenticationService: AuthenticationService) :
-        AbstractController<WorktimeRequest, UUID, WorktimeRequestUpdateDTO> (worktimeRequestService, objectMapper) {
+        AbstractController<WorktimeRequest, UUID, WorktimeRequestUpdateDTO>(worktimeRequestService, objectMapper) {
 
     @GetMapping("/filter")
     override fun getByFilter(@RequestParam("filter") filterRaw: String,
-                             @RequestParam("projection") projectionRaw: String): Flux<WorktimeRequest> {
+                             @RequestParam(value = "projection", required = false)
+                             projectionRaw: String?): Flux<WorktimeRequest> {
         return this._getByFilter(filterRaw, projectionRaw)
     }
 
