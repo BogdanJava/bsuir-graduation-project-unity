@@ -1,5 +1,6 @@
 package by.bogdan.bsuir.bsuirgraduationbackend.service
 
+import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.RequestStatus
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.WorktimeRequest
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.WorktimeRequestUpdateDTO
 import by.bogdan.bsuir.bsuirgraduationbackend.exceptions.ResourceNotFoundException
@@ -29,6 +30,7 @@ class WorktimeRequestService(val worktimeRequestRepository: WorktimeRequestRepos
         return results.all { result -> result == true }
                 .flatMap { checkResult ->
                     if (checkResult) {
+                        document.status = RequestStatus.PENDING
                         worktimeRequestRepository.save(document)
                     } else {
                         throw ResourceNotFoundException("No user found for id ${document.approverId} or " +

@@ -1,5 +1,6 @@
 package by.bogdan.bsuir.bsuirgraduationbackend.service
 
+import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.RequestStatus
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.TimeRequest
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.TimeRequestUpdateDTO
 import by.bogdan.bsuir.bsuirgraduationbackend.exceptions.ResourceNotFoundException
@@ -22,7 +23,7 @@ class TimeRequestService(private val timeRequestRepository: TimeRequestRepositor
     override fun create(document: TimeRequest): Mono<TimeRequest> {
         return userRepository.existsById(document.approverId!!).flatMap { exists ->
             if (exists) {
-                document.approved = false
+                document.status = RequestStatus.PENDING
                 document.id = UUID.randomUUID()
                 timeRequestRepository.save(document)
             } else {

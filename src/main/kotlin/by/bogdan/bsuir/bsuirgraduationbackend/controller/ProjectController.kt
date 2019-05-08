@@ -18,7 +18,7 @@ import java.util.*
  */
 @ProtectedResource
 @RestController
-@RequestMapping(path = arrayOf("/api/project", "/api/projects"))
+@RequestMapping(path = ["/api/project", "/api/projects"])
 class ProjectController(objectMapper: ObjectMapper, val service: ProjectService, val repo: ProjectRepository)
     : AbstractController<ProjectDocument, UUID, ProjectUpdateDTO>(objectMapper = objectMapper, entityService = service) {
 
