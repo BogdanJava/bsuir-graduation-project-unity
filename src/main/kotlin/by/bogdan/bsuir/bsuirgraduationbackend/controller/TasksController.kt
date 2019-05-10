@@ -1,20 +1,34 @@
 package by.bogdan.bsuir.bsuirgraduationbackend.controller
 
+import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.TaskDocument
+import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.TaskStatus
+import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.TaskUpdateDTO
+import by.bogdan.bsuir.bsuirgraduationbackend.repository.TaskRepository
 import by.bogdan.bsuir.bsuirgraduationbackend.security.annotations.ProtectedResource
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import by.bogdan.bsuir.bsuirgraduationbackend.service.TaskService
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.springframework.web.bind.annotation.*
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.util.*
 
 @ProtectedResource
 @RestController
 @RequestMapping("/api/tasks")
-class TasksController {
-
-    @GetMapping("/count")
-    fun undeadMessagesCount(@RequestParam username: String,
-                            @RequestParam pending: Boolean): Mono<Int> {
-        return Mono.just(0)
+class TasksController(val taskService: TaskService,
+                      val taskRepository: TaskRepository,
+                      objectMapper: ObjectMapper) :
+        AbstractController<TaskDocument, UUID, TaskUpdateDTO>(taskService, objectMapper) {
+    override fun getByFilter(filterRaw: String, projectionRaw: String): Flux<TaskDocument> {
+        return this._getByFilter(filterRaw, projectionRaw);
     }
+
+    @GetMapping("/count/{assigneeId}")
+    fun pendingTasksCount(@PathVariable assigneeId: UUID,
+                          @RequestParam status: TaskStatus): Mono<Int> {
+        return taskRepository.countByAssigneeIdAndStatus(assigneeId, status)
+    }
+
+    @PostMapping
+    fun createTask(task: TaskDocument): Mono<TaskDocument> = taskService.create(task)
 }

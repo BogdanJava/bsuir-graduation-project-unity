@@ -26,7 +26,7 @@ class UserService(val userRepository: UserRepository,
             document.roles = mutableListOf(Role.USER)
         }
         var projectIds = document.projectIds
-        return projectRepository.findByName("Idle").flatMap { idleProject ->
+        return projectRepository.findByName(defaultProjectName).flatMap { idleProject ->
             if (projectIds == null) {
                 projectIds = mutableListOf(idleProject.id!!)
             } else {
@@ -34,5 +34,9 @@ class UserService(val userRepository: UserRepository,
             }
             userRepository.save(document)
         }
+    }
+
+    companion object {
+        val defaultProjectName = "Idle"
     }
 }

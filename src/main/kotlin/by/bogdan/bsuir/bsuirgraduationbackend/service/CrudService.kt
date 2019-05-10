@@ -18,7 +18,7 @@ abstract class CrudService<T : BasicDocument, ID, UpdateDTO>(
         private val mongoTemplate: ReactiveMongoTemplate,
         private val objectCopyService: ObjectCopyService,
         private val clazz: Class<T>) {
-    abstract fun create(document: T): Mono<T>
+    open fun create(document: T): Mono<T> = mongoRepository.insert(document)
     open fun findById(id: ID): Mono<T> = mongoRepository.findById(id)
             .switchIfEmpty(Mono.error(ResourceNotFoundException("Entity wasn't found for id: $id")))
 
