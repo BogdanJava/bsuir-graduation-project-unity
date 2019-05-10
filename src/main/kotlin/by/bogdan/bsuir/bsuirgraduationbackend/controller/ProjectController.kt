@@ -18,13 +18,13 @@ import java.util.*
  */
 @ProtectedResource
 @RestController
-@RequestMapping(path = arrayOf("/api/project", "/api/projects"))
+@RequestMapping(path = ["/api/project", "/api/projects"])
 class ProjectController(objectMapper: ObjectMapper, val service: ProjectService, val repo: ProjectRepository)
     : AbstractController<ProjectDocument, UUID, ProjectUpdateDTO>(objectMapper = objectMapper, entityService = service) {
 
     @GetMapping("/filter")
     override fun getByFilter(@RequestParam("filter") filterRaw: String,
-                             @RequestParam("projection") projectionRaw: String): Flux<ProjectDocument> {
+                             @RequestParam("projection") projectionRaw: String?): Flux<ProjectDocument> {
         return this._getByFilter(filterRaw, projectionRaw)
     }
 

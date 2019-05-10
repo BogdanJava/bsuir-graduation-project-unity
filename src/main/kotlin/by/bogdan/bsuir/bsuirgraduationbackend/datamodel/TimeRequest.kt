@@ -13,7 +13,7 @@ data class TimeRequest(@Id @Field("id") var id: UUID? = null,
                        var endDate: Date?,
                        var description: String?,
                        var approverId: UUID?,
-                       var approved: Boolean = false) : BasicDocument()
+                       var status: RequestStatus?) : BasicDocument()
 
 enum class TimeRequestType {
     BUSINESS_LEAVE,
@@ -21,6 +21,12 @@ enum class TimeRequestType {
     UNPAID,
     TIME_SHIFT,
     ILLNESS
+}
+
+enum class RequestStatus {
+    APPROVED,
+    DECLINED,
+    PENDING
 }
 
 data class TimeRequestUpdateDTO(var approved: Boolean,

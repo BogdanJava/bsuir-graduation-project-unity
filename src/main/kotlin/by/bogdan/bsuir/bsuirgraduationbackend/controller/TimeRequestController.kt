@@ -1,5 +1,6 @@
 package by.bogdan.bsuir.bsuirgraduationbackend.controller
 
+import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.RequestStatus
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.Role
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.TimeRequest
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.TimeRequestUpdateDTO
@@ -26,7 +27,7 @@ class TimeRequestController(val timeRequestService: TimeRequestService,
 
     @GetMapping("/filter")
     override fun getByFilter(@RequestParam("filter") filterRaw: String,
-                             @RequestParam("projection") projectionRaw: String): Flux<TimeRequest> {
+                             @RequestParam(value = "projection", required = false) projectionRaw: String?): Flux<TimeRequest> {
         return this._getByFilter(filterRaw, projectionRaw)
     }
 
@@ -43,7 +44,7 @@ class TimeRequestController(val timeRequestService: TimeRequestService,
             timeRequestRepository.findByApproverId(approverId)
         } else {
             // return only unapproved requests
-            timeRequestRepository.findByApproverIdAndApproved(approverId, false)
+            timeRequestRepository.findByApproverIdAndStatus(approverId, RequestStatus.PENDING)
         }
     }
 
@@ -53,20 +54,24 @@ class TimeRequestController(val timeRequestService: TimeRequestService,
         return if (showApproved) {
             timeRequestRepository.countByApproverId(approverId)
         } else {
-            timeRequestRepository.countByApproverIdAndApproved(approverId, false)
+            timeRequestRepository.countByApproverIdAndStatus(approverId, RequestStatus.PENDING)
         }
     }
 
     @RestrictedAccess(Role.ADMIN, Role.MODERATOR)
     @PutMapping("/{id}")
     fun approveRequest(@PathVariable("id") requestId: UUID,
-                       @RequestHeader("Authorization") authHeader: String): Mono<TimeRequest> {
+                       @RequestHeader("Authorization") authHeader: String,
+                       @RequestBody params: Map<String, Any>): Mono<TimeRequest> {
+        val approved: Boolean = params["approved"]!! as Boolean
         return timeRequestService.findById(requestId).flatMap { request ->
             val currentUserId = authenticationService.getClaimsFromAuthorizationHeader(authHeader)["id"]
-            if (request.approverId != currentUserId) {
+            if (!request.approverId!!.equals(currentUserId)) {
                 throw AuthenticationException("Current user id and approver id don't match")
+            } else if (request.status != RequestStatus.PENDING) {
+                throw IllegalArgumentException("Request [$requestId] has been already processed")
             } else {
-                request.approved = true
+                request.status = if (approved) RequestStatus.APPROVED else RequestStatus.DECLINED
                 timeRequestRepository.save(request)
             }
         }

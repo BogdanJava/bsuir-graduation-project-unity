@@ -8,7 +8,7 @@ import java.util.*
 @Document(collection = "projects")
 data class ProjectDocument(@Id @Field("id") var id: UUID?,
                            var name: String?,
-                           var assignedPersonsIds: MutableList<UUID>,
+                           var assignedPersonsIds: MutableList<UUID>?,
                            var description: String?) : BasicDocument()
 
 data class ProjectUpdateDTO(var name: String?,

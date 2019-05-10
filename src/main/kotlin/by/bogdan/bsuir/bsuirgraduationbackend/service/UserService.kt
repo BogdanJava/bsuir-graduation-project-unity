@@ -6,6 +6,7 @@ import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.UserDocument
 import by.bogdan.bsuir.bsuirgraduationbackend.repository.ProjectRepository
 import by.bogdan.bsuir.bsuirgraduationbackend.repository.UserRepository
 import by.bogdan.bsuir.bsuirgraduationbackend.security.AuthenticationService
+import by.bogdan.bsuir.bsuirgraduationbackend.utils.CustomReflectionUtils
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
@@ -16,8 +17,10 @@ class UserService(val userRepository: UserRepository,
                   val authService: AuthenticationService,
                   val projectRepository: ProjectRepository,
                   objectCopyService: ObjectCopyService,
-                  mongoTemplate: ReactiveMongoTemplate) :
-        CrudService<UserDocument, UUID, UpdateUserDTO>(userRepository, mongoTemplate, objectCopyService, UserDocument::class.java) {
+                  mongoTemplate: ReactiveMongoTemplate,
+                  reflectionUtils: CustomReflectionUtils) :
+        CrudService<UserDocument, UUID, UpdateUserDTO>(userRepository, mongoTemplate, objectCopyService,
+                UserDocument::class.java, reflectionUtils) {
     override fun create(document: UserDocument): Mono<UserDocument> {
         val password = document.password
         document.password = authService.encode(password)

@@ -1,5 +1,6 @@
 package by.bogdan.bsuir.bsuirgraduationbackend.controller
 
+import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.RequestStatus
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.Role
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.WorktimeRequest
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.WorktimeRequestUpdateDTO
@@ -22,11 +23,12 @@ class WorktimeRequestController(val worktimeRequestService: WorktimeRequestServi
                                 objectMapper: ObjectMapper,
                                 val worktimeRequestRepository: WorktimeRequestRepository,
                                 val authenticationService: AuthenticationService) :
-        AbstractController<WorktimeRequest, UUID, WorktimeRequestUpdateDTO> (worktimeRequestService, objectMapper) {
+        AbstractController<WorktimeRequest, UUID, WorktimeRequestUpdateDTO>(worktimeRequestService, objectMapper) {
 
     @GetMapping("/filter")
     override fun getByFilter(@RequestParam("filter") filterRaw: String,
-                             @RequestParam("projection") projectionRaw: String): Flux<WorktimeRequest> {
+                             @RequestParam(value = "projection", required = false)
+                             projectionRaw: String?): Flux<WorktimeRequest> {
         return this._getByFilter(filterRaw, projectionRaw)
     }
 
@@ -43,7 +45,7 @@ class WorktimeRequestController(val worktimeRequestService: WorktimeRequestServi
             worktimeRequestRepository.findByApproverId(approverId)
         } else {
             // return only unapproved requests
-            worktimeRequestRepository.findByApproverIdAndApproved(approverId, false)
+            worktimeRequestRepository.findByApproverIdAndStatus(approverId, RequestStatus.PENDING)
         }
     }
 
@@ -53,20 +55,24 @@ class WorktimeRequestController(val worktimeRequestService: WorktimeRequestServi
         return if (showApproved) {
             worktimeRequestRepository.countByApproverId(approverId)
         } else {
-            worktimeRequestRepository.countByApproverIdAndApproved(approverId, false)
+            worktimeRequestRepository.countByApproverIdAndStatus(approverId, RequestStatus.PENDING)
         }
     }
 
     @RestrictedAccess(Role.ADMIN, Role.MODERATOR)
     @PutMapping("/{id}")
     fun approveRequest(@PathVariable("id") requestId: UUID,
-                       @RequestHeader("Authorization") authHeader: String): Mono<WorktimeRequest> {
+                       @RequestHeader("Authorization") authHeader: String,
+                       @RequestBody params: Map<String, Any>): Mono<WorktimeRequest> {
+        val approved: Boolean = params["approved"]!! as Boolean
         return worktimeRequestService.findById(requestId).flatMap { request ->
             val currentUserId = authenticationService.getClaimsFromAuthorizationHeader(authHeader)["id"]
-            if (request.approverId != currentUserId) {
+            if (!request.approverId!!.toString().equals(currentUserId)) {
                 throw AuthenticationException("Current user id and approver id don't match")
+            } else if (request.status != RequestStatus.PENDING) {
+                throw IllegalArgumentException("Request [$requestId] has been already processed")
             } else {
-                request.approved = true
+                request.status = if (approved) RequestStatus.APPROVED else RequestStatus.DECLINED
                 worktimeRequestRepository.save(request)
             }
         }

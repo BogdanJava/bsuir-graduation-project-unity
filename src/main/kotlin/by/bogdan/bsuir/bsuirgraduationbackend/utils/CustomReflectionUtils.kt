@@ -38,6 +38,10 @@ class CustomReflectionUtils {
         }
     }
 
+    fun findField(fieldName: String, clazz: Class<*>): Field? {
+        return ReflectionUtils.findField(clazz, fieldName)
+    }
+
     fun readField(field: String, source: Any): Any? {
         val foundField = ReflectionUtils.findField(source::class.java, field)
         return if (foundField != null) {
