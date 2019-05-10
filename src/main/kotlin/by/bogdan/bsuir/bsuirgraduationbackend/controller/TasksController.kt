@@ -19,7 +19,7 @@ class TasksController(val taskService: TaskService,
                       val taskRepository: TaskRepository,
                       objectMapper: ObjectMapper) :
         AbstractController<TaskDocument, UUID, TaskUpdateDTO>(taskService, objectMapper) {
-    override fun getByFilter(filterRaw: String, projectionRaw: String): Flux<TaskDocument> {
+    override fun getByFilter(filterRaw: String, projectionRaw: String?): Flux<TaskDocument> {
         return this._getByFilter(filterRaw, projectionRaw);
     }
 
