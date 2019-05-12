@@ -24,13 +24,16 @@ class ProjectController(objectMapper: ObjectMapper, val service: ProjectService,
 
     @GetMapping("/filter")
     override fun getByFilter(@RequestParam("filter") filterRaw: String,
-                             @RequestParam("projection") projectionRaw: String?): Flux<ProjectDocument> {
-        return this._getByFilter(filterRaw, projectionRaw)
+                             @RequestParam("projection") projectionRaw: String?,
+                             @RequestParam("pageSize") itemsPerPage: Int,
+                             @RequestParam("pageNumber") pageNumber: Int): Flux<ProjectDocument> {
+        return this._getByFilter(filterRaw, projectionRaw, itemsPerPage, pageNumber)
     }
 
     @RestrictedAccess(Role.ADMIN, Role.MODERATOR)
     @PostMapping
-    fun create(@RequestBody projectDocument: ProjectDocument) = service.create(document = projectDocument)
+    fun create(@RequestHeader("Authorization") authHeader: String,
+               @RequestBody projectDocument: ProjectDocument) = service.create(document = projectDocument)
 
     @GetMapping("/{userId}")
     fun getByUserId(@PathVariable userId: UUID): Flux<ProjectDocument> = repo.findByAssignedPersonsIdsIn(arrayListOf(userId))

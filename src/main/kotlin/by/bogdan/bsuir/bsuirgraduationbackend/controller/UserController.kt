@@ -27,14 +27,22 @@ class UserController(private val userService: UserService,
 
     @GetMapping("/filter")
     override fun getByFilter(@RequestParam("filter") filterRaw: String,
-                             @RequestParam("projection") projectionRaw: String?): Flux<UserDocument> {
-        return this._getByFilter(filterRaw, projectionRaw);
+                             @RequestParam("projection") projectionRaw: String?,
+                             @RequestParam("pageSize") itemsPerPage: Int,
+                             @RequestParam("pageNumber") pageNumber: Int): Flux<UserDocument> {
+        return this._getByFilter(filterRaw, projectionRaw, itemsPerPage, pageNumber)
+    }
+
+    @RestrictedAccess(Role.ADMIN, Role.MODERATOR)
+    @GetMapping("/count")
+    fun getUsersCount(@RequestHeader("Authorization") authHeader: String): Mono<Long> {
+        return this.userRepository.countByDeleted(false)
     }
 
     @RestrictedAccess(Role.ADMIN)
     @PostMapping
-    fun create(@RequestBody user: CreateUserDTO,
-               @RequestHeader("Authorization") authHeader: String): Mono<UserDocument> {
+    fun create(@RequestHeader("Authorization") authHeader: String,
+               @RequestBody user: CreateUserDTO): Mono<UserDocument> {
         log.info("Creating user: $user")
         val userDocument = UserDocument()
         objectCopyService.noOverwriteTargetCopy(user, userDocument)
@@ -49,6 +57,11 @@ class UserController(private val userService: UserService,
 
     @GetMapping("/{id}")
     fun getById(@PathVariable id: UUID) = userService.findById(id)
+
+    @GetMapping("/exists")
+    fun existsByUsername(@RequestParam username: String): Mono<Boolean> {
+        return userRepository.existsByUsername(username)
+    }
 
     @GetMapping
     fun getByUsername(@RequestParam username: String): Mono<UserDocument> {

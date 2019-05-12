@@ -19,8 +19,13 @@ class TasksController(val taskService: TaskService,
                       val taskRepository: TaskRepository,
                       objectMapper: ObjectMapper) :
         AbstractController<TaskDocument, UUID, TaskUpdateDTO>(taskService, objectMapper) {
-    override fun getByFilter(filterRaw: String, projectionRaw: String?): Flux<TaskDocument> {
-        return this._getByFilter(filterRaw, projectionRaw);
+
+    @GetMapping("/filter")
+    override fun getByFilter(@RequestParam("filter") filterRaw: String,
+                             @RequestParam("projection") projectionRaw: String?,
+                             @RequestParam("pageSize") itemsPerPage: Int,
+                             @RequestParam("pageNumber") pageNumber: Int): Flux<TaskDocument> {
+        return this._getByFilter(filterRaw, projectionRaw, itemsPerPage, pageNumber)
     }
 
     @GetMapping("/count/{assigneeId}")

@@ -13,6 +13,10 @@ class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException::class)
     fun handleNotFound(ex: ResourceNotFoundException) = message(ex)
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(BadPayloadException::class)
+    fun handleBadPayloadException(ex: BadPayloadException) = message(ex)
+
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(AuthenticationException::class)
     fun handleUnauthorized(ex: AuthenticationException): Map<String, String?> {
@@ -32,14 +36,18 @@ class GlobalExceptionHandler {
 data class AuthenticationException(val msg: String,
                                    val username: String,
                                    val password: String) : CustomException(msg) {
-    override fun getResponseStatus() = HttpStatus.UNAUTHORIZED;
+    override fun getResponseStatus() = HttpStatus.UNAUTHORIZED
 
     constructor(ex: Throwable) : this(ex.message!!, "", "")
     constructor(message: String) : this(message, "", "")
 }
 
 data class ResourceNotFoundException(val msg: String) : CustomException(msg) {
-    override fun getResponseStatus() = HttpStatus.NOT_FOUND;
+    override fun getResponseStatus() = HttpStatus.NOT_FOUND
+}
+
+data class BadPayloadException(val msg: String) : CustomException(msg) {
+    override fun getResponseStatus(): HttpStatus = HttpStatus.BAD_REQUEST
 }
 
 abstract class CustomException(message: String) : RuntimeException(message) {

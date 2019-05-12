@@ -13,14 +13,19 @@ abstract class AbstractController<T : BasicDocument, ID, UT>(
         private val objectMapper: ObjectMapper) {
 
     protected fun _getByFilter(filterRaw: String,
-                               projectionRaw: String?): Flux<T> {
+                               projectionRaw: String?,
+                               itemsPerPage: Int = 100,
+                               pageNumber: Int = 0): Flux<T> {
         val filter = objectMapper.readValue(filterRaw, DataFilter::class.java)
         val projection = if (!StringUtils.isEmpty(projectionRaw)) {
             objectMapper.readValue<List<String>>(projectionRaw, object : TypeReference<List<String>>() {})
         } else emptyList()
-        return entityService.getByFilter(filter.filter, projection)
+        return entityService.getByFilter(filter.filter, projection, itemsPerPage, pageNumber)
     }
 
-    abstract fun getByFilter(filterRaw: String, projectionRaw: String?): Flux<T>
+    abstract fun getByFilter(filterRaw: String,
+                             projectionRaw: String?,
+                             itemsPerPage: Int = 100,
+                             pageNumber: Int = 0): Flux<T>
 
 }

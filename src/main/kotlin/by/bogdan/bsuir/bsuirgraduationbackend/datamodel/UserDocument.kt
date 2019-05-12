@@ -12,7 +12,7 @@ data class UserDocument(
         var username: String = "",
         @JsonIgnore var password: String = "",
         var photoUrl: String? = null,
-        var roles: MutableList<Role> = mutableListOf(),
+        var roles: MutableList<Role>? = null,
         var realName: String? = null,
         var birthday: Long? = null,
         var address: String? = null,
@@ -23,8 +23,11 @@ enum class Role {
     ADMIN, USER, MODERATOR
 }
 
-data class CreateUserDTO(var username: String,
-                         var password: String)
+data class CreateUserDTO(var id: UUID?,
+                         var username: String,
+                         var password: String?,
+                         var roles: MutableList<Role>,
+                         var realName: String)
 
 data class UpdateUserDTO(var realName: String?,
                          var department: DepartmentDocument?,

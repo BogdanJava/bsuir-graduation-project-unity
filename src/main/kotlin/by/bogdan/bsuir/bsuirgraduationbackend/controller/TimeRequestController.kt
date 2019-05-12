@@ -5,6 +5,7 @@ import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.Role
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.TimeRequest
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.TimeRequestUpdateDTO
 import by.bogdan.bsuir.bsuirgraduationbackend.exceptions.AuthenticationException
+import by.bogdan.bsuir.bsuirgraduationbackend.exceptions.BadPayloadException
 import by.bogdan.bsuir.bsuirgraduationbackend.repository.TimeRequestRepository
 import by.bogdan.bsuir.bsuirgraduationbackend.security.AuthenticationService
 import by.bogdan.bsuir.bsuirgraduationbackend.security.annotations.ProtectedResource
@@ -27,8 +28,10 @@ class TimeRequestController(val timeRequestService: TimeRequestService,
 
     @GetMapping("/filter")
     override fun getByFilter(@RequestParam("filter") filterRaw: String,
-                             @RequestParam(value = "projection", required = false) projectionRaw: String?): Flux<TimeRequest> {
-        return this._getByFilter(filterRaw, projectionRaw)
+                             @RequestParam("projection") projectionRaw: String?,
+                             @RequestParam("pageSize") itemsPerPage: Int,
+                             @RequestParam("pageNumber") pageNumber: Int): Flux<TimeRequest> {
+        return this._getByFilter(filterRaw, projectionRaw, itemsPerPage, pageNumber)
     }
 
     @PostMapping
@@ -60,16 +63,16 @@ class TimeRequestController(val timeRequestService: TimeRequestService,
 
     @RestrictedAccess(Role.ADMIN, Role.MODERATOR)
     @PutMapping("/{id}")
-    fun approveRequest(@PathVariable("id") requestId: UUID,
-                       @RequestHeader("Authorization") authHeader: String,
+    fun approveRequest(@RequestHeader("Authorization") authHeader: String,
+                       @PathVariable("id") requestId: UUID,
                        @RequestBody params: Map<String, Any>): Mono<TimeRequest> {
         val approved: Boolean = params["approved"]!! as Boolean
         return timeRequestService.findById(requestId).flatMap { request ->
-            val currentUserId = authenticationService.getClaimsFromAuthorizationHeader(authHeader)["id"]
-            if (!request.approverId!!.equals(currentUserId)) {
+            val currentUserId = authenticationService.getClaimsFromAuthorizationHeader(authHeader)["id"] as String
+            if (request.approverId!! != UUID.fromString(currentUserId)) {
                 throw AuthenticationException("Current user id and approver id don't match")
             } else if (request.status != RequestStatus.PENDING) {
-                throw IllegalArgumentException("Request [$requestId] has been already processed")
+                throw BadPayloadException("Request [$requestId] has been already processed")
             } else {
                 request.status = if (approved) RequestStatus.APPROVED else RequestStatus.DECLINED
                 timeRequestRepository.save(request)

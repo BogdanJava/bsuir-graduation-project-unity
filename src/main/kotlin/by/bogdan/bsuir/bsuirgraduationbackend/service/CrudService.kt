@@ -5,6 +5,8 @@ import by.bogdan.bsuir.bsuirgraduationbackend.controller.ValueContainer
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.BasicDocument
 import by.bogdan.bsuir.bsuirgraduationbackend.exceptions.ResourceNotFoundException
 import by.bogdan.bsuir.bsuirgraduationbackend.utils.CustomReflectionUtils
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
@@ -33,8 +35,12 @@ abstract class CrudService<T : BasicDocument, ID, UpdateDTO>(
         }
     }
 
-    fun getByFilter(dataFilter: Map<String, ValueContainer>, projectionFields: List<String>): Flux<T> {
+    fun getByFilter(dataFilter: Map<String, ValueContainer>,
+                    projectionFields: List<String>,
+                    itemsPerPage: Int,
+                    pageNumber: Int): Flux<T> {
         val query = Query()
+        query.with(PageRequest.of(pageNumber, itemsPerPage))
         dataFilter.forEach { path, operatorValuePair ->
             val value = getValue(path, operatorValuePair.value)
             val criteria = Criteria(path)

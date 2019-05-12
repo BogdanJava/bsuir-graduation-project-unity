@@ -12,4 +12,8 @@ import java.util.UUID;
  */
 public interface UserRepository extends ReactiveMongoRepository<UserDocument, UUID> {
   Mono<UserDocument> findByUsername(String username);
+
+  Mono<Long> countByDeleted(Boolean deleted);
+
+  Mono<Boolean> existsByUsername(String username);
 }

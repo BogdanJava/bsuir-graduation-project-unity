@@ -21,14 +21,14 @@ class RoleAccessAspect(private val authenticationService: AuthenticationService,
     fun checkUserPrivileges(joinPoint: ProceedingJoinPoint): Mono<Any> {
         val method = (joinPoint.signature as MethodSignature).method
         val roleSensitive = method.getDeclaredAnnotation(RestrictedAccess::class.java)
-        val bearer = joinPoint.args[1] as String
+        val bearer = joinPoint.args[0] as String
         val claims = authenticationService.getClaimsFromAuthorizationHeader(bearer)
         return userService.findById(UUID.fromString(claims["id"] as String)).flatMap { currentUser ->
             roleSensitive.requiredRoles.forEach { role ->
-                if (!currentUser.roles.contains(role)) {
+                if (!currentUser.roles!!.contains(role)) {
                     val message = "User does not have enough privileges to do this action: " +
                             "action: ${method.name}"
-                    log.warn(message);
+                    log.warn(message)
                     throw AuthenticationException(message,
                             username = currentUser.username, password = "")
                 }

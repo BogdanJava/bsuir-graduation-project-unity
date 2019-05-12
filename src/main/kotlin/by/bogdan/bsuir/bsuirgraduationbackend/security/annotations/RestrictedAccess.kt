@@ -4,7 +4,7 @@ import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.Role
 
 /**
  * @see RoleAccessAspect
- * Note: if function is annotated with @RestrictedAccess, the second parameter must be
+ * Note: if function is annotated with @RestrictedAccess, the first parameter must be
  * an authorization header (bearer) of type String
  */
 @Retention(AnnotationRetention.RUNTIME)
