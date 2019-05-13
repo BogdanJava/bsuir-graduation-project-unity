@@ -46,6 +46,8 @@ abstract class CrudService<T : BasicDocument, ID, UpdateDTO>(
             val criteria = Criteria(path)
             when (operatorValuePair.operator) {
                 Operator.EQ -> criteria.isEqualTo(value)
+                Operator.CONTAINS -> criteria.regex(value as String)
+                Operator.CONTAINS_I -> criteria.regex(value as String, "i")
                 Operator.IN -> criteria.inValues(*((value as List<*>).toTypedArray()))
                 Operator.LT -> criteria.lt(value)
                 Operator.GT -> criteria.gt(value)

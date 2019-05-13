@@ -10,6 +10,7 @@ import by.bogdan.bsuir.bsuirgraduationbackend.service.ProjectService
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import java.util.*
 
 /**
@@ -37,5 +38,15 @@ class ProjectController(objectMapper: ObjectMapper, val service: ProjectService,
 
     @GetMapping("/{userId}")
     fun getByUserId(@PathVariable userId: UUID): Flux<ProjectDocument> = repo.findByAssignedPersonsIdsIn(arrayListOf(userId))
+
+    @GetMapping("/exists")
+    fun existsByName(@RequestParam projectName: String): Mono<Boolean> {
+        return this.repo.existsByName(projectName)
+    }
+
+    @GetMapping("/count")
+    fun projectsCount(): Mono<Int> {
+        return this.repo.countByDeleted(false)
+    }
 
 }

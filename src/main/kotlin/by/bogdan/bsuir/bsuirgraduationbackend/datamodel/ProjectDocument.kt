@@ -9,7 +9,10 @@ import java.util.*
 data class ProjectDocument(@Id @Field("id") var id: UUID?,
                            var name: String?,
                            var assignedPersonsIds: MutableList<UUID>?,
-                           var description: String?) : BasicDocument()
+                           var description: String?,
+                           var photoUrl: String?) : BasicDocument()
 
 data class ProjectUpdateDTO(var name: String?,
-                            var description: String?)
+                            var description: String?,
+                            var assignedPersonsIds: MutableList<UUID>?,
+                            var photoUrl: String?)

@@ -38,7 +38,7 @@ fun main(args: Array<String>) {
 
 fun createDefaultProject(user: UserDocument, projectRepository: ProjectRepository, userRepository: UserRepository) {
     projectRepository.findByName("Idle").switchIfEmpty(Mono.just(
-            ProjectDocument(null, "Idle", mutableListOf(user.id!!), "No project")))
+            ProjectDocument(null, "Idle", mutableListOf(user.id!!), "No project", " ")))
             .subscribe { project ->
                 if (project.id == null) {
                     project.id = UUID.randomUUID()
