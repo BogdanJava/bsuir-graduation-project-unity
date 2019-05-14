@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono
 import java.lang.reflect.Field
 import java.util.*
 
-abstract class CrudService<T : BasicDocument, ID, UpdateDTO>(
+abstract class CrudService<T, ID, UpdateDTO>(
         private val mongoRepository: ReactiveMongoRepository<T, ID>,
         private val mongoTemplate: ReactiveMongoTemplate,
         private val objectCopyService: ObjectCopyService,
@@ -30,7 +30,7 @@ abstract class CrudService<T : BasicDocument, ID, UpdateDTO>(
 
     open fun update(id: ID, updates: UpdateDTO): Mono<T> {
         return mongoRepository.findById(id).flatMap { found ->
-            objectCopyService.patchTarget(found, updates as Any)
+            objectCopyService.patchTarget(found as Any, updates as Any)
             mongoRepository.save(found)
         }
     }

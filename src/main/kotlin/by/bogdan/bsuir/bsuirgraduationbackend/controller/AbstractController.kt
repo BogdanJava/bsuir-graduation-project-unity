@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.util.StringUtils
 import reactor.core.publisher.Flux
 
-abstract class AbstractController<T : BasicDocument, ID, UT>(
+abstract class AbstractController<T, ID, UT>(
         private val entityService: CrudService<T, ID, UT>,
         private val objectMapper: ObjectMapper) {
 
