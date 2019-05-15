@@ -40,13 +40,14 @@ class MongoPrePersistEventListener(val reflectionUtils: CustomReflectionUtils,
                 log.info("Event created: $createdEvent")
             }
             document["created"] = date
-        }
-        timelineEventService.create(TimelineEvent.create(
-                source::class.java,
-                "",
-                TimelineEventType.UPDATE,
-                source)).subscribe { createdEvent ->
-            log.info("Event created: $createdEvent")
+        } else {
+            timelineEventService.create(TimelineEvent.create(
+                    source::class.java,
+                    "",
+                    TimelineEventType.UPDATE,
+                    source)).subscribe { createdEvent ->
+                log.info("Event created: $createdEvent")
+            }
         }
         document["updated"] = date
         document["deleted"] = false

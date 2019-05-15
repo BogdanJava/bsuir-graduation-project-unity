@@ -17,19 +17,18 @@ abstract class CustomWebSocketHandler<T : ApplicationEvent> :
         Consumer<FluxSink<T>> {
     private val eventsQueue: BlockingQueue<T> = LinkedBlockingQueue<T>();
     private val executor = Executors.newCachedThreadPool()
+    protected val publish = Flux.create(this).share();
 
     override fun accept(sink: FluxSink<T>) {
         executor.execute {
             while (true) {
-                val echoEvent = eventsQueue.poll(2, TimeUnit.SECONDS)
-                sink.next(if (echoEvent != null) echoEvent else noEvent())
+                val polledValue = eventsQueue.poll(500, TimeUnit.MILLISECONDS)
+                if (polledValue != null) {
+                    sink.next(polledValue)
+                }
             }
         }
     }
-
-    protected fun getPublish() = Flux.create(this).share()
-
-    protected abstract fun noEvent(): T
 
     override fun onApplicationEvent(event: T) {
         eventsQueue.offer(event)

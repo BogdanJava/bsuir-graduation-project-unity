@@ -33,6 +33,7 @@ data class UpdateUserDTO(var realName: String?,
                          var department: DepartmentDocument?,
                          var address: String?,
                          var birthday: Long?,
-                         var photoUrl: String?) {
-    constructor() : this(null, null, null, 0, null)
+                         var photoUrl: String?,
+                         var projectIds: MutableList<UUID>?) {
+    constructor() : this(null, null, null, 0, null, null)
 }

@@ -20,7 +20,7 @@ class TimelineEvent {
     companion object {
         fun create(clazz: Class<*>, description: String, type: TimelineEventType, obj: Any): TimelineEvent {
             val timelineEvent = TimelineEvent()
-            timelineEvent.className = clazz.name
+            timelineEvent.className = clazz.simpleName
             timelineEvent.description = description
             timelineEvent.type = type
             timelineEvent.obj = obj
@@ -30,9 +30,6 @@ class TimelineEvent {
         }
     }
 
-    override fun toString(): String {
-        return "{type: $type, class: $className, description: $description}"
-    }
 }
 
 enum class TimelineEventType {

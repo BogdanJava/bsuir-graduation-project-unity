@@ -60,8 +60,11 @@ class AuthenticationService(private val userRepository: UserRepository,
         }
     }
 
-    fun isTokenValid(rawToken: String): Boolean {
+    fun isTokenValid(rawToken: String?): Boolean {
         return try {
+            if (rawToken == null) {
+                throw RuntimeException("Token is null")
+            }
             if (parser.isSigned(rawToken)) {
                 val body = parser.parseClaimsJws(rawToken).body
                 body.expiration.after(Date(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000))

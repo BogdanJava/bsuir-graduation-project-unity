@@ -7,12 +7,10 @@ import reactor.core.publisher.Mono
 
 @Component
 final class EchoHandler : CustomWebSocketHandler<EchoEvent>() {
-    override fun noEvent() = EchoEvent("No event")
-
     override fun getMapping() = "/echo"
 
     override fun handle(session: WebSocketSession): Mono<Void> {
-        return session.send(getPublish().map { event -> event.source }
+        return session.send(publish.map { event -> event.source }
                 .map { src -> session.textMessage(src.toString()) })
     }
 }

@@ -38,5 +38,5 @@ class WebSocketConfiguration {
     }
 
     @Bean
-    fun executor(): Executor = Executors.newSingleThreadExecutor()
+    fun executor(): Executor = Executors.newCachedThreadPool()
 }
