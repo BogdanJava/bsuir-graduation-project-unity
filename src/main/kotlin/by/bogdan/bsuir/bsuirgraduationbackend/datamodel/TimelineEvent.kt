@@ -15,7 +15,7 @@ class TimelineEvent {
 
     @Field("id")
     @Id
-    lateinit var id: UUID;
+    lateinit var id: UUID
 
     companion object {
         fun create(clazz: Class<*>, description: String, type: TimelineEventType, obj: Any): TimelineEvent {
@@ -28,6 +28,14 @@ class TimelineEvent {
             timelineEvent.created = Date()
             return timelineEvent
         }
+    }
+
+    override fun toString(): String {
+        return "{ ${this::class.java.declaredFields.map { field ->
+            val name = field.name
+            val value = field.get(this)
+            "$name: $value"
+        }.reduce { builder, str -> "$builder, $str" }} }"
     }
 
 }

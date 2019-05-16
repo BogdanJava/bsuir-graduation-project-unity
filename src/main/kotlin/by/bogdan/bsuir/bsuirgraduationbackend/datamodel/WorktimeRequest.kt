@@ -18,7 +18,13 @@ data class WorktimeRequest(@Id @Field("id") var id: UUID? = null,
                            var projectId: UUID?,
                            var approverId: UUID?,
                            var hours: Int?,
-                           var status: RequestStatus?) : BasicDocument()
+                           var status: RequestStatus?) : BasicDocument(), Status {
+    override fun requestStatus() = status
+}
 
 data class WorktimeRequestUpdateDTO(var approved: Boolean,
                                     var description: String?)
+
+interface Status {
+    fun requestStatus(): RequestStatus?
+}

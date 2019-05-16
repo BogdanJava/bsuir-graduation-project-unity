@@ -1,6 +1,7 @@
 package by.bogdan.bsuir.bsuirgraduationbackend.utils
 
 import org.slf4j.LoggerFactory
+import org.springframework.data.annotation.Id
 import org.springframework.stereotype.Component
 import org.springframework.util.ReflectionUtils
 import java.lang.reflect.Field
@@ -50,6 +51,15 @@ class CustomReflectionUtils {
             log.warn("Missing field \"$field\" in class \"${source::class.java}\"")
             null
         }
+    }
+
+    fun findIdField(obj: Any): Field? {
+        for (field in obj::class.java.declaredFields) {
+            if (field.isAnnotationPresent(Id::class.java)) {
+                return field;
+            }
+        }
+        return null;
     }
 
     companion object {

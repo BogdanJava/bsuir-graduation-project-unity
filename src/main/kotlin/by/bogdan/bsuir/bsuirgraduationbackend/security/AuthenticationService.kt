@@ -36,11 +36,7 @@ class AuthenticationService(private val userRepository: UserRepository,
 
     fun getClaimsFromAuthorizationHeader(authorization: String): Claims {
         val token = authorization.substring(7)
-        if (parser.isSigned(token)) {
-            return parser.parseClaimsJws(token).body
-        } else {
-            throw AuthenticationException("Invalid token", "", "")
-        }
+        return getClaimsFromToken(token)
     }
 
     fun authenticate(username: String, password: String): Mono<AuthToken> {
@@ -94,6 +90,14 @@ class AuthenticationService(private val userRepository: UserRepository,
         } catch (ex: Throwable) {
             log.error(ex.message, ex)
             throw AuthenticationException(ex)
+        }
+    }
+
+    fun getClaimsFromToken(accessToken: String): Claims {
+        if (parser.isSigned(accessToken)) {
+            return parser.parseClaimsJws(accessToken).body
+        } else {
+            throw AuthenticationException("Invalid token", "", "")
         }
     }
 

@@ -1,9 +1,6 @@
 package by.bogdan.bsuir.bsuirgraduationbackend.controller
 
-import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.RequestStatus
-import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.Role
-import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.TimeRequest
-import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.TimeRequestUpdateDTO
+import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.*
 import by.bogdan.bsuir.bsuirgraduationbackend.exceptions.AuthenticationException
 import by.bogdan.bsuir.bsuirgraduationbackend.exceptions.BadPayloadException
 import by.bogdan.bsuir.bsuirgraduationbackend.repository.TimeRequestRepository
@@ -11,7 +8,9 @@ import by.bogdan.bsuir.bsuirgraduationbackend.security.AuthenticationService
 import by.bogdan.bsuir.bsuirgraduationbackend.security.annotations.ProtectedResource
 import by.bogdan.bsuir.bsuirgraduationbackend.security.annotations.RestrictedAccess
 import by.bogdan.bsuir.bsuirgraduationbackend.service.TimeRequestService
+import by.bogdan.bsuir.bsuirgraduationbackend.service.TimelineEventService
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -23,6 +22,7 @@ import java.util.*
 class TimeRequestController(val timeRequestService: TimeRequestService,
                             val authenticationService: AuthenticationService,
                             val timeRequestRepository: TimeRequestRepository,
+                            val timelineEventService: TimelineEventService,
                             objectMapper: ObjectMapper) :
         AbstractController<TimeRequest, UUID, TimeRequestUpdateDTO>(timeRequestService, objectMapper) {
 
@@ -75,9 +75,22 @@ class TimeRequestController(val timeRequestService: TimeRequestService,
                 throw BadPayloadException("Request [$requestId] has been already processed")
             } else {
                 request.status = if (approved) RequestStatus.APPROVED else RequestStatus.DECLINED
-                timeRequestRepository.save(request)
+                timeRequestRepository.save(request).map { saved ->
+                    timelineEventService.create(TimelineEvent.create(
+                            TimeRequest::class.java,
+                            "",
+                            if (approved) TimelineEventType.APPROVE else TimelineEventType.DECLINE,
+                            request)).subscribe { event ->
+                        log.info("Event created: $event")
+                    }
+                    saved
+                }
             }
         }
+    }
+
+    companion object {
+        val log = LoggerFactory.getLogger(TimeRequestController::class.java)!!
     }
 
 }

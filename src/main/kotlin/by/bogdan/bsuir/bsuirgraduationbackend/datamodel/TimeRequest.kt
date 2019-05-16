@@ -13,7 +13,9 @@ data class TimeRequest(@Id @Field("id") var id: UUID? = null,
                        var endDate: Date?,
                        var description: String?,
                        var approverId: UUID?,
-                       var status: RequestStatus?) : BasicDocument()
+                       var status: RequestStatus?) : BasicDocument(), Status {
+    override fun requestStatus() = status
+}
 
 enum class TimeRequestType {
     BUSINESS_LEAVE,
