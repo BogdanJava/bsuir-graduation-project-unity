@@ -53,5 +53,4 @@ fun createDefaultProject(user: UserDocument, projectRepository: ProjectRepositor
             }
 }
 
-
 val log = LoggerFactory.getLogger(Application::class.java)!!
