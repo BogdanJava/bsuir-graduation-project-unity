@@ -7,9 +7,11 @@ import by.bogdan.bsuir.bsuirgraduationbackend.exceptions.ResourceNotFoundExcepti
 import by.bogdan.bsuir.bsuirgraduationbackend.repository.TimeRequestRepository
 import by.bogdan.bsuir.bsuirgraduationbackend.repository.UserRepository
 import by.bogdan.bsuir.bsuirgraduationbackend.utils.CustomReflectionUtils
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
+import java.text.DateFormat
 import java.util.*
 
 @Service
@@ -17,9 +19,11 @@ class TimeRequestService(private val timeRequestRepository: TimeRequestRepositor
                          private val userRepository: UserRepository,
                          mongoTemplate: ReactiveMongoTemplate,
                          objectCopyService: ObjectCopyService,
-                         reflectionUtils: CustomReflectionUtils) :
+                         reflectionUtils: CustomReflectionUtils,
+                         @Qualifier("isoDateFormat") dateFormat: DateFormat) :
         CrudService<TimeRequest, UUID, TimeRequestUpdateDTO>(timeRequestRepository,
-                mongoTemplate, objectCopyService, TimeRequest::class.java, reflectionUtils) {
+                mongoTemplate, objectCopyService, TimeRequest::class.java, reflectionUtils,
+                dateFormat) {
     override fun create(document: TimeRequest): Mono<TimeRequest> {
         return userRepository.existsById(document.approverId!!).flatMap { exists ->
             if (exists) {

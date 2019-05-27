@@ -1,6 +1,5 @@
 package by.bogdan.bsuir.bsuirgraduationbackend.controller
 
-import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.BasicDocument
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.DataFilter
 import by.bogdan.bsuir.bsuirgraduationbackend.service.CrudService
 import com.fasterxml.jackson.core.type.TypeReference

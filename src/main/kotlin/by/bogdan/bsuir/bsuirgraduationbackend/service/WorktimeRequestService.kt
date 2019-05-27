@@ -8,10 +8,12 @@ import by.bogdan.bsuir.bsuirgraduationbackend.repository.ProjectRepository
 import by.bogdan.bsuir.bsuirgraduationbackend.repository.UserRepository
 import by.bogdan.bsuir.bsuirgraduationbackend.repository.WorktimeRequestRepository
 import by.bogdan.bsuir.bsuirgraduationbackend.utils.CustomReflectionUtils
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.text.DateFormat
 import java.util.*
 
 @Service
@@ -20,9 +22,10 @@ class WorktimeRequestService(val worktimeRequestRepository: WorktimeRequestRepos
                              objectCopyService: ObjectCopyService,
                              val userRepository: UserRepository,
                              val projectRepository: ProjectRepository,
-                             reflectionUtils: CustomReflectionUtils) :
+                             reflectionUtils: CustomReflectionUtils,
+                             @Qualifier("isoDateFormat") dateFormat: DateFormat) :
         CrudService<WorktimeRequest, UUID, WorktimeRequestUpdateDTO>(worktimeRequestRepository, mongoTemplate,
-                objectCopyService, WorktimeRequest::class.java, reflectionUtils) {
+                objectCopyService, WorktimeRequest::class.java, reflectionUtils, dateFormat) {
     override fun create(document: WorktimeRequest): Mono<WorktimeRequest> {
         val userExistsMono = userRepository.existsById(document.approverId!!)
         val projectExistsMono = projectRepository.existsById(document.projectId!!)
