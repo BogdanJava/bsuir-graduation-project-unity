@@ -35,5 +35,5 @@ class TasksController(val taskService: TaskService,
     }
 
     @PostMapping
-    fun createTask(task: TaskDocument): Mono<TaskDocument> = taskService.create(task)
+    fun createTask(@RequestBody task: TaskDocument): Mono<TaskDocument> = taskService.create(task)
 }

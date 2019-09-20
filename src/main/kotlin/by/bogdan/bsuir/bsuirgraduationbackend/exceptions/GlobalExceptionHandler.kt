@@ -5,9 +5,20 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.server.ServerWebExchange
 
 @RestControllerAdvice(basePackages = ["by.bogdan"])
 class GlobalExceptionHandler {
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(Throwable::class)
+    fun handleOther(ex: Throwable, serverWebExchange: ServerWebExchange): Map<*, *> {
+        log.error(ex.message, ex)
+        log.error("request: ${serverWebExchange.request}")
+        return mapOf(
+                Pair("message", ex.message),
+                Pair("request", serverWebExchange.request))
+    }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(ResourceNotFoundException::class)

@@ -7,9 +7,11 @@ import by.bogdan.bsuir.bsuirgraduationbackend.repository.ProjectRepository
 import by.bogdan.bsuir.bsuirgraduationbackend.repository.UserRepository
 import by.bogdan.bsuir.bsuirgraduationbackend.security.AuthenticationService
 import by.bogdan.bsuir.bsuirgraduationbackend.utils.CustomReflectionUtils
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
+import java.text.DateFormat
 import java.util.*
 
 @Service
@@ -18,9 +20,10 @@ class UserService(val userRepository: UserRepository,
                   val projectRepository: ProjectRepository,
                   objectCopyService: ObjectCopyService,
                   mongoTemplate: ReactiveMongoTemplate,
-                  reflectionUtils: CustomReflectionUtils) :
+                  reflectionUtils: CustomReflectionUtils,
+                  @Qualifier("isoDateFormat") dateFormat: DateFormat) :
         CrudService<UserDocument, UUID, UpdateUserDTO>(userRepository, mongoTemplate, objectCopyService,
-                UserDocument::class.java, reflectionUtils) {
+                UserDocument::class.java, reflectionUtils, dateFormat) {
     override fun create(document: UserDocument): Mono<UserDocument> {
         val password = document.password
         document.password = authService.encode(password)

@@ -81,6 +81,6 @@ class NotificationsWebSocketHandler(val objectMapper: ObjectMapper,
     }
 
     companion object {
-        val log = LoggerFactory.getLogger(NotificationsWebSocketHandler::class.java)
+        val log = LoggerFactory.getLogger(NotificationsWebSocketHandler::class.java)!!
     }
 }

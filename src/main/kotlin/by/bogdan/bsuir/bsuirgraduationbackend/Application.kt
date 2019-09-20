@@ -3,9 +3,9 @@ package by.bogdan.bsuir.bsuirgraduationbackend
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.ProjectDocument
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.Role
 import by.bogdan.bsuir.bsuirgraduationbackend.datamodel.UserDocument
+import by.bogdan.bsuir.bsuirgraduationbackend.service.UserService
 import by.bogdan.bsuir.bsuirgraduationbackend.repository.ProjectRepository
 import by.bogdan.bsuir.bsuirgraduationbackend.repository.UserRepository
-import by.bogdan.bsuir.bsuirgraduationbackend.service.UserService
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
